@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import SearchBar from '@/components/SearchBar'
 import ResourceCard from '@/components/ResourceCard'
 import { getFeaturedResources, getRecentResources, getAllResources } from '@/lib/resources'
@@ -16,7 +17,7 @@ export default function HomePage() {
           The central knowledge base for FIRST Robotics teams. Find guides, code, videos, and docs — fast.
         </p>
         <div className="mt-8 max-w-xl mx-auto">
-          <SearchBar placeholder="Search resources, topics, or tags..." />
+          <Suspense><SearchBar placeholder="Search resources, topics, or tags..." /></Suspense>
         </div>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {[
