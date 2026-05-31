@@ -2,52 +2,117 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 
+// ── Types ──────────────────────────────────────────────────────────────────────
+
 export type ResourceType = 'guide' | 'code' | 'video' | 'doc'
-export type Competition = 'frc' | 'ftc' | 'both'
-export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
-export type Topic = 'programming' | 'mechanical' | 'electrical' | 'strategy' | 'scouting' | 'business'
-export type Language = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
+export type Competition  = 'frc' | 'ftc' | 'both'
+export type Difficulty   = 'beginner' | 'intermediate' | 'advanced'
+export type Topic        = 'programming' | 'mechanical' | 'electrical' | 'strategy' | 'scouting' | 'business'
+export type Language     = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
 
 export interface Resource {
-  title: string
-  slug: string
-  type: ResourceType
+  // Required frontmatter
+  title:       string
+  slug:        string
+  type:        ResourceType
   competition: Competition
-  difficulty: Difficulty
-  topics: Topic[]
-  language?: Language
+  difficulty:  Difficulty
+  topics:      Topic[]
   description: string
-  source_url?: string
-  video_url?: string
-  date_added: string
+  date_added:  string
   date_updated: string
-  featured: boolean
-  tags: string[]
-  content?: string
+  featured:    boolean
+  tags:        string[]
+  // Optional frontmatter
+  language?:   Language
+  source_url?: string
+  video_url?:  string
+  // Populated at load time — raw MDX body after the frontmatter block
+  content?:    string
 }
 
-const contentDir = path.join(process.cwd(), 'content')
+// ── Directory mapping ──────────────────────────────────────────────────────────
 
-export function getAllResources(): Resource[] {
-  const types: ResourceType[] = ['guide', 'code', 'video', 'doc']
+const TYPE_TO_DIR: Record<ResourceType, string> = {
+  guide: 'guides',
+  code:  'code',
+  video: 'videos',
+  doc:   'docs',
+}
+
+const CONTENT_DIR = path.join(process.cwd(), 'content')
+
+// ── Loader ────────────────────────────────────────────────────────────────────
+
+/**
+ * Reads every .mdx / .md file under /content and returns validated Resource
+ * objects sorted newest-first by date_added.
+ *
+ * Skips files that are missing required frontmatter fields so a single bad
+ * file never breaks the whole site.
+ */
+function loadAllResources(): Resource[] {
   const resources: Resource[] = []
 
-  for (const type of types) {
-    const dir = path.join(contentDir, type === 'guide' ? 'guides' : type === 'doc' ? 'docs' : type === 'video' ? 'videos' : 'code')
-    if (!fs.existsSync(dir)) continue
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'))
+  for (const [type, dir] of Object.entries(TYPE_TO_DIR) as [ResourceType, string][]) {
+    const dirPath = path.join(CONTENT_DIR, dir)
+    if (!fs.existsSync(dirPath)) continue
+
+    const files = fs.readdirSync(dirPath).filter(f => /\.mdx?$/.test(f))
+
     for (const file of files) {
-      const raw = fs.readFileSync(path.join(dir, file), 'utf8')
+      const raw = fs.readFileSync(path.join(dirPath, file), 'utf8')
       const { data, content } = matter(raw)
-      resources.push({ ...data as Resource, content })
+
+      if (!data.title || !data.slug) {
+        console.warn(`[resources] Skipping ${file}: missing required frontmatter (title, slug)`)
+        continue
+      }
+
+      const d = data as Record<string, unknown>
+      resources.push({
+        title:        d.title as string,
+        slug:         d.slug as string,
+        type,
+        competition:  (d.competition ?? 'both') as Competition,
+        difficulty:   (d.difficulty ?? 'beginner') as Difficulty,
+        topics:       (d.topics ?? []) as Topic[],
+        description:  (d.description ?? '') as string,
+        date_added:   (d.date_added ?? '') as string,
+        date_updated: (d.date_updated ?? '') as string,
+        featured:     Boolean(d.featured),
+        tags:         (d.tags ?? []) as string[],
+        language:     d.language as Language | undefined,
+        source_url:   d.source_url as string | undefined,
+        video_url:    d.video_url as string | undefined,
+        content,
+      })
     }
   }
 
-  return resources.sort((a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime())
+  return resources.sort(
+    (a, b) => new Date(b.date_added).getTime() - new Date(a.date_added).getTime()
+  )
 }
+
+// Cache so repeated calls within the same process don't re-read disk.
+// In Next.js dev mode the module is reloaded on each request, giving fresh
+// data without stale cache issues.
+let _cache: Resource[] | null = null
+
+export function getAllResources(): Resource[] {
+  if (!_cache) _cache = loadAllResources()
+  return _cache
+}
+
+// ── Convenience helpers ────────────────────────────────────────────────────────
 
 export function getResourceBySlug(slug: string): Resource | undefined {
   return getAllResources().find(r => r.slug === slug)
+}
+
+export function getResourcesByType(type: ResourceType): Resource[] {
+  return getAllResources().filter(r => r.type === type)
 }
 
 export function getFeaturedResources(): Resource[] {
@@ -58,13 +123,21 @@ export function getRecentResources(count = 6): Resource[] {
   return getAllResources().slice(0, count)
 }
 
+/**
+ * Returns up to `count` resources that share the most tags, topics, or
+ * competition with the given resource, ranked by overlap score.
+ */
 export function getRelatedResources(resource: Resource, count = 5): Resource[] {
-  const all = getAllResources().filter(r => r.slug !== resource.slug)
-  const scored = all.map(r => ({
-    resource: r,
-    score: r.tags.filter(t => resource.tags.includes(t)).length +
-           r.topics.filter(t => resource.topics.includes(t)).length +
-           (r.competition === resource.competition ? 1 : 0)
-  }))
-  return scored.sort((a, b) => b.score - a.score).slice(0, count).map(s => s.resource)
+  return getAllResources()
+    .filter(r => r.slug !== resource.slug)
+    .map(r => ({
+      resource: r,
+      score:
+        r.tags.filter(t => resource.tags.includes(t)).length +
+        r.topics.filter(t => resource.topics.includes(t)).length +
+        (r.competition === resource.competition ? 1 : 0),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count)
+    .map(s => s.resource)
 }
