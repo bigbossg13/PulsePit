@@ -1,0 +1,50 @@
+---
+title: "PID Controller Tuning for FRC Drive Trains"
+slug: "pid-tuning-frc-drivetrain"
+type: guide
+competition: frc
+difficulty: intermediate
+topics:
+  - programming
+language: java
+description: "Step-by-step guide to tuning PID loops for FRC drivetrains using WPILib."
+source_url: "https://github.com/wpilibsuite/allwpilib"
+video_url: ""
+date_added: "2024-10-01"
+date_updated: "2025-02-14"
+featured: true
+tags:
+  - pid
+  - wpilib
+  - autonomous
+---
+
+# PID Controller Tuning for FRC Drivetrains
+
+PID (Proportional-Integral-Derivative) controllers are essential for precise autonomous movement in FRC robots.
+
+## What is a PID Controller?
+
+A PID controller continuously calculates an error value as the difference between a desired setpoint and a measured process variable.
+
+## Setting Up PID in WPILib
+
+```java
+import edu.wpi.first.math.controller.PIDController;
+
+public class DriveSubsystem {
+  private final PIDController m_pidController = new PIDController(0.1, 0.0, 0.01);
+  
+  public void driveToDistance(double targetDistance) {
+    double output = m_pidController.calculate(getDistance(), targetDistance);
+    m_drive.arcadeDrive(output, 0);
+  }
+}
+```
+
+## Tuning Steps
+
+1. **Start with P only** — set I and D to 0
+2. **Increase P** until the system oscillates
+3. **Add D** to dampen oscillation
+4. **Add I** only if steady-state error remains
