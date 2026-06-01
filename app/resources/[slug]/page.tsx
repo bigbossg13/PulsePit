@@ -63,7 +63,7 @@ function ResourceHeader({ resource, readTime }: { resource: Resource; readTime?:
       <div className="flex flex-wrap gap-2 mb-4">
         <TagBadge label={resource.type}        variant="type" />
         <TagBadge label={resource.competition.toUpperCase()} variant="competition" />
-        <TagBadge label={resource.difficulty}  variant="difficulty" />
+        {resource.difficulty && <TagBadge label={resource.difficulty} variant="difficulty" />}
         <TagBadge label={resource.subcategory} variant="topic" />{resource.topics.filter(t => t !== resource.subcategory).map(t => <TagBadge key={t} label={t} variant="topic" />)}
         {resource.language && <TagBadge label={resource.language} />}
       </div>

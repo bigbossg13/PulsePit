@@ -8,10 +8,14 @@ const REPO_NAME  = 'PulsePit'
 
 const SUBCATEGORIES = ['design','mechanical','electrical','software','business','media','miscellaneous'] as const
 const COMPETITIONS  = ['frc','ftc','both'] as const
-const DIFFICULTIES  = ['beginner','intermediate','advanced'] as const
-const TYPES         = ['guide','code','video','doc'] as const
+const TYPES         = ['guide','code','video','doc','whitepaper','chief-delphi','link'] as const
 const LANGUAGES     = ['java','python','c++','kotlin','blocks'] as const
-const TYPE_TO_DIR: Record<string, string> = { guide:'guides', code:'code', video:'videos', doc:'docs' }
+const TYPE_TO_DIR: Record<string, string> = {
+  guide: 'guides', code: 'code', video: 'videos', doc: 'docs',
+  whitepaper: 'whitepapers', 'chief-delphi': 'chief-delphi', link: 'links',
+}
+// Types that are purely external links — no MDX body, just a URL
+const LINK_TYPES = new Set(['video','whitepaper','chief-delphi','link'])
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -29,7 +33,6 @@ function buildFrontmatter(f: FormState): string {
     `title: "${f.title.replace(/"/g, '\\"')}"`,
     `slug: ${f.slug}`,
     `competition: ${f.competition}`,
-    `difficulty: ${f.difficulty}`,
     `subcategory: ${f.subcategory}`,
     `description: "${f.description.replace(/"/g, '\\"')}"`,
     `date_added: "${today()}"`,
@@ -37,9 +40,9 @@ function buildFrontmatter(f: FormState): string {
     `featured: ${f.featured}`,
     `tags: [${f.tags.split(',').map(t => `"${t.trim()}"`).filter(Boolean).join(', ')}]`,
   ]
-  if (f.language) lines.push(`language: ${f.language}`)
-  if (f.source_url) lines.push(`source_url: "${f.source_url}"`)
-  if (f.video_url)  lines.push(`video_url: "${f.video_url}"`)
+  if (f.language)    lines.push(`language: ${f.language}`)
+  if (f.source_url)  lines.push(`source_url: "${f.source_url}"`)
+  if (f.video_url)   lines.push(`video_url: "${f.video_url}"`)
   lines.push('---')
   return lines.join('\n')
 }
@@ -57,7 +60,6 @@ interface FormState {
   slug:        string
   type:        typeof TYPES[number]
   competition: typeof COMPETITIONS[number]
-  difficulty:  typeof DIFFICULTIES[number]
   subcategory: typeof SUBCATEGORIES[number]
   description: string
   tags:        string
@@ -70,7 +72,7 @@ interface FormState {
 
 const EMPTY: FormState = {
   title: '', slug: '', type: 'guide', competition: 'both',
-  difficulty: 'beginner', subcategory: 'miscellaneous',
+  subcategory: 'miscellaneous',
   description: '', tags: '', featured: false,
   language: '', source_url: '', video_url: '', body: '',
 }
@@ -241,10 +243,11 @@ export default function SubmitForm() {
     }
   }
 
+  const isLinkType     = LINK_TYPES.has(form.type)
   const needsLanguage  = form.type === 'code'
   const needsVideo     = form.type === 'video'
-  const needsSourceUrl = form.type === 'code' || form.type === 'doc'
-  const needsBody      = form.type === 'guide' || form.type === 'doc'
+  const needsSourceUrl = form.type === 'code' || form.type === 'doc' || form.type === 'whitepaper' || form.type === 'chief-delphi' || form.type === 'link'
+  const needsBody      = !isLinkType
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -306,14 +309,10 @@ export default function SubmitForm() {
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Classification</legend>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Competition</Label>
               <Select value={form.competition} onChange={v => set('competition', v)} options={COMPETITIONS} />
-            </div>
-            <div>
-              <Label>Difficulty</Label>
-              <Select value={form.difficulty} onChange={v => set('difficulty', v)} options={DIFFICULTIES} />
             </div>
             <div>
               <Label>Subcategory</Label>
@@ -361,8 +360,10 @@ export default function SubmitForm() {
               )}
               {needsSourceUrl && (
                 <div className={needsLanguage ? '' : 'col-span-2'}>
-                  <Label>Source URL</Label>
-                  <Input value={form.source_url} onChange={v => set('source_url', v)} placeholder="https://github.com/…" type="url" />
+                  <Label>{form.type === 'whitepaper' ? 'Whitepaper URL' : form.type === 'chief-delphi' ? 'Chief Delphi Post URL' : form.type === 'link' ? 'Link URL' : 'Source URL'}</Label>
+                  <Input value={form.source_url} onChange={v => set('source_url', v)}
+                    placeholder={form.type === 'chief-delphi' ? 'https://chiefdelphi.com/t/…' : form.type === 'whitepaper' ? 'https://…/whitepaper.pdf' : form.type === 'link' ? 'https://…' : 'https://github.com/…'}
+                    type="url" />
                 </div>
               )}
             </div>

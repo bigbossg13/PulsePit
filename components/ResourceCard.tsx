@@ -3,10 +3,13 @@ import type { Resource } from '@/lib/resources'
 import TagBadge from './TagBadge'
 
 const TYPE_ICON: Record<string, string> = {
-  guide: '📖',
-  code:  '💻',
-  video: '▶️',
-  doc:   '📄',
+  guide:         '📖',
+  code:          '💻',
+  video:         '▶️',
+  doc:           '📄',
+  whitepaper:    '📑',
+  'chief-delphi':'💬',
+  link:          '🔗',
 }
 
 export default function ResourceCard({ resource }: { resource: Resource }) {
@@ -20,7 +23,7 @@ export default function ResourceCard({ resource }: { resource: Resource }) {
         <div className="flex flex-wrap gap-1.5">
           <TagBadge label={resource.type} variant="type" />
           <TagBadge label={resource.competition.toUpperCase()} variant="competition" />
-          <TagBadge label={resource.difficulty} variant="difficulty" />
+          {resource.difficulty && <TagBadge label={resource.difficulty} variant="difficulty" />}
         </div>
         <span className="text-lg shrink-0" aria-hidden="true">{TYPE_ICON[resource.type]}</span>
       </div>

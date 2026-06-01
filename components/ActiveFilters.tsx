@@ -1,12 +1,11 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-const FILTER_KEYS = ['competition', 'type', 'difficulty', 'topic', 'language', 'q'] as const
+const FILTER_KEYS = ['competition', 'type', 'topic', 'language', 'q'] as const
 
 const LABEL: Record<string, string> = {
   competition: 'Competition',
   type:        'Type',
-  difficulty:  'Difficulty',
   topic:       'Topic',
   language:    'Language',
   q:           'Search',
