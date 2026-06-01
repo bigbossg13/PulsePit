@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 # Allow one concurrent deployment; cancel in-flight runs on new push
 concurrency:
@@ -40,8 +41,8 @@ jobs:
         run: npm run build
 
       - name: Upload Pages artifact
-        # Only upload on pushes to main, not on PRs
-        if: github.event_name == 'push'
+        # Only upload on pushes to main or manual runs, not on PRs
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: out
@@ -49,7 +50,7 @@ jobs:
   # ── Deploy ───────────────────────────────────────────────────────────────────
   deploy:
     needs: build
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
