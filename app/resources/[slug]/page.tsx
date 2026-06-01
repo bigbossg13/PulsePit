@@ -22,6 +22,9 @@ import { mdxComponents } from '@/components/MdxComponents'
 
 // ── Static params ──────────────────────────────────────────────────────────────
 
+// With output: export, unknown slugs 404 — no server fallback.
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return getAllResources().map(r => ({ slug: r.slug }))
 }
@@ -61,7 +64,7 @@ function ResourceHeader({ resource, readTime }: { resource: Resource; readTime?:
         <TagBadge label={resource.type}        variant="type" />
         <TagBadge label={resource.competition.toUpperCase()} variant="competition" />
         <TagBadge label={resource.difficulty}  variant="difficulty" />
-        {resource.topics.map(t => <TagBadge key={t} label={t} variant="topic" />)}
+        <TagBadge label={resource.subcategory} variant="topic" />{resource.topics.filter(t => t !== resource.subcategory).map(t => <TagBadge key={t} label={t} variant="topic" />)}
         {resource.language && <TagBadge label={resource.language} />}
       </div>
 

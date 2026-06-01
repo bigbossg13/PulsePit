@@ -10,7 +10,7 @@ const FILTER_GROUPS = [
   { key: 'competition', label: 'Competition', values: ['frc', 'ftc', 'both'] },
   { key: 'type',        label: 'Type',        values: ['guide', 'code', 'video', 'doc'] },
   { key: 'difficulty',  label: 'Difficulty',  values: ['beginner', 'intermediate', 'advanced'] },
-  { key: 'topic',       label: 'Topic',       values: ['programming', 'mechanical', 'electrical', 'strategy', 'scouting', 'business'] },
+  { key: 'topic',       label: 'Subcategory', values: ['design', 'mechanical', 'electrical', 'software', 'business', 'media', 'miscellaneous'] },
   { key: 'language',    label: 'Language',    values: ['java', 'python', 'c++', 'kotlin', 'blocks'] },
 ] as const
 
@@ -90,7 +90,7 @@ function applyFilters(resources: Resource[], sp: URLSearchParams): Resource[] {
     if (key === 'competition') result = result.filter(r => r.competition === val)
     if (key === 'type')        result = result.filter(r => r.type === val)
     if (key === 'difficulty')  result = result.filter(r => r.difficulty === val)
-    if (key === 'topic')       result = result.filter(r => r.topics.includes(val as Resource['topics'][number]))
+    if (key === 'topic')       result = result.filter(r => r.subcategory === val || r.topics.includes(val as Resource['topics'][number]))
     if (key === 'language')    result = result.filter(r => r.language === val)
   }
 
