@@ -10,7 +10,7 @@ const SUBCATEGORIES = ['design','mechanical','electrical','software','business',
 
 const MINICATEGORIES: Record<string, string[]> = {
   design:        ['CAD', 'Prototyping', 'Ergonomics', 'Aesthetics'],
-  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator'],
+  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator', 'Bumpers'],
   electrical:    ['Wiring', 'Power', 'Sensors', 'Motors', 'Pneumatics'],
   software:      ['Autonomous', 'Teleop', 'Vision', 'Controls', 'Simulation'],
   business:      ['Impact', 'Outreach', 'Fundraising', 'Sustainability'],
