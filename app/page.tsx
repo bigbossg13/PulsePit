@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import SearchBar from '@/components/SearchBar'
+import SearchTrigger from '@/components/SearchTrigger'
 import ResourceCard from '@/components/ResourceCard'
 import { getFeaturedResources, getRecentResources, getAllResources, getResourcesByType } from '@/lib/resources'
 
@@ -88,15 +87,8 @@ function Hero() {
         </p>
 
         {/* Search */}
-        <div className="mt-8 max-w-xl mx-auto">
-          <Suspense>
-            <SearchBar placeholder="Search by topic, language, or keyword…" />
-          </Suspense>
-          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-            Press{' '}
-            <kbd className="rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
-            {' '}from anywhere to search
-          </p>
+        <div className="mt-8 flex justify-center">
+          <SearchTrigger large />
         </div>
 
         {/* Quick filter chips */}
