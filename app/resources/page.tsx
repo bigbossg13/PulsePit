@@ -5,6 +5,12 @@ import ResourceCard from '@/components/ResourceCard'
 import FilterSidebar from '@/components/FilterSidebar'
 import SearchBar from '@/components/SearchBar'
 import ActiveFilters from '@/components/ActiveFilters'
+import {
+  ResourceGridSkeleton,
+  SearchBarSkeleton,
+  FilterSidebarSkeleton,
+  ActiveFiltersSkeleton,
+} from '@/components/Skeletons'
 
 // All known filter keys that live in URL params
 const FILTER_KEYS = ['competition', 'type', 'difficulty', 'topic', 'language'] as const
@@ -74,16 +80,6 @@ function SortSelect({ current }: { current: string }) {
   )
 }
 
-// Loading skeleton shown while client components (FilterSidebar, SearchBar) hydrate
-function GridSkeleton() {
-  return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-48 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
-      ))}
-    </div>
-  )
-}
 
 export default function ResourcesPage({ searchParams }: { searchParams: SearchParams }) {
   const allResources = getAllResources()
@@ -105,7 +101,7 @@ export default function ResourcesPage({ searchParams }: { searchParams: SearchPa
 
       {/* Search bar */}
       <div className="mb-4">
-        <Suspense>
+        <Suspense fallback={<SearchBarSkeleton />}>
           <SearchBar defaultValue={searchParams.q} placeholder="Search by title, topic, or tag…" />
         </Suspense>
       </div>
@@ -113,7 +109,7 @@ export default function ResourcesPage({ searchParams }: { searchParams: SearchPa
       {/* Active filter chips */}
       {(activeFilterCount > 0 || hasQuery) && (
         <div className="mb-4">
-          <Suspense>
+          <Suspense fallback={<ActiveFiltersSkeleton />}>
             <ActiveFilters searchParams={searchParams as Record<string, string>} />
           </Suspense>
         </div>
@@ -123,7 +119,7 @@ export default function ResourcesPage({ searchParams }: { searchParams: SearchPa
       <div className="flex flex-col md:flex-row gap-8">
 
         {/* Filter sidebar */}
-        <Suspense>
+        <Suspense fallback={<FilterSidebarSkeleton />}>
           <FilterSidebar />
         </Suspense>
 
@@ -140,7 +136,7 @@ export default function ResourcesPage({ searchParams }: { searchParams: SearchPa
             <SortSelect current={searchParams.sort ?? 'newest'} />
           </div>
 
-          <Suspense fallback={<GridSkeleton />}>
+          <Suspense fallback={<ResourceGridSkeleton count={6} />}>
             {filtered.length === 0 ? (
               <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-12 text-center">
                 <p className="text-gray-500 dark:text-gray-400 font-medium">No resources match your filters.</p>
