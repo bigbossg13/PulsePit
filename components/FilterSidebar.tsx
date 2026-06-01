@@ -4,8 +4,7 @@ import { useState } from 'react'
 
 const FILTER_GROUPS: { key: string; label: string; values: string[] }[] = [
   { key: 'competition', label: 'Competition',  values: ['frc', 'ftc', 'both'] },
-  { key: 'type',        label: 'Type',         values: ['guide', 'code', 'video', 'doc'] },
-  { key: 'difficulty',  label: 'Difficulty',   values: ['beginner', 'intermediate', 'advanced'] },
+  { key: 'type',        label: 'Type',         values: ['guide', 'code', 'video', 'doc', 'whitepaper', 'chief-delphi', 'link'] },
   { key: 'topic',       label: 'Subcategory',  values: ['design', 'mechanical', 'electrical', 'software', 'business', 'media', 'miscellaneous'] },
   { key: 'language',    label: 'Language',     values: ['java', 'python', 'c++', 'kotlin', 'blocks'] },
 ]

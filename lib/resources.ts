@@ -4,7 +4,7 @@ import matter from 'gray-matter'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type ResourceType  = 'guide' | 'code' | 'video' | 'doc'
+export type ResourceType  = 'guide' | 'code' | 'video' | 'doc' | 'whitepaper' | 'chief-delphi' | 'link'
 export type Competition   = 'frc' | 'ftc' | 'both'
 export type Difficulty    = 'beginner' | 'intermediate' | 'advanced'
 export type Subcategory   = 'design' | 'mechanical' | 'electrical' | 'software' | 'business' | 'media' | 'miscellaneous'
@@ -30,7 +30,7 @@ export interface Resource {
   slug:         string
   type:         ResourceType
   competition:  Competition
-  difficulty:   Difficulty
+  difficulty?:  Difficulty
   subcategory:  Subcategory    // primary subcategory (single value)
   topics:       Subcategory[]  // additional subcategories (multi-select)
   description:  string
@@ -49,10 +49,13 @@ export interface Resource {
 // ── Directory mapping ──────────────────────────────────────────────────────────
 
 const TYPE_TO_DIR: Record<ResourceType, string> = {
-  guide: 'guides',
-  code:  'code',
-  video: 'videos',
-  doc:   'docs',
+  guide:         'guides',
+  code:          'code',
+  video:         'videos',
+  doc:           'docs',
+  whitepaper:    'whitepapers',
+  'chief-delphi':'chief-delphi',
+  link:          'links',
 }
 
 const CONTENT_DIR = path.join(process.cwd(), 'content')
@@ -94,7 +97,7 @@ function loadAllResources(): Resource[] {
         slug:         d.slug as string,
         type,
         competition:  (d.competition ?? 'both') as Competition,
-        difficulty:   (d.difficulty ?? 'beginner') as Difficulty,
+        difficulty:   d.difficulty as Difficulty | undefined,
         subcategory,
         topics:       topicsRaw,
         description:  (d.description ?? '') as string,
