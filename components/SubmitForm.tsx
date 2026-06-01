@@ -6,7 +6,18 @@ import { useState, useEffect, useCallback } from 'react'
 const REPO_OWNER = 'bigbossg13'
 const REPO_NAME  = 'PulsePit'
 
-const SUBCATEGORIES = ['design','mechanical','electrical','software','business','media','miscellaneous'] as const
+const SUBCATEGORIES = ['design','mechanical','electrical','software','business','media','scouting','miscellaneous'] as const
+
+const MINICATEGORIES: Record<string, string[]> = {
+  design:        ['CAD', 'Prototyping', 'Ergonomics', 'Aesthetics'],
+  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator'],
+  electrical:    ['Wiring', 'Power', 'Sensors', 'Motors', 'Pneumatics'],
+  software:      ['Autonomous', 'Teleop', 'Vision', 'Controls', 'Simulation'],
+  business:      ['Impact', 'Outreach', 'Fundraising', 'Sustainability'],
+  media:         ['Photography', 'Video', 'Social Media', 'Branding'],
+  scouting:      ['Match Scouting', 'Pit Scouting', 'Data Analysis', 'Strategy', 'Alliance Selection'],
+  miscellaneous: ['Superpit', 'How to Start a Team', 'Safety'],
+}
 const COMPETITIONS  = ['frc','ftc','both'] as const
 const TYPES         = ['guide','code','video','doc','whitepaper','chief-delphi','link'] as const
 const LANGUAGES     = ['java','python','c++','kotlin','blocks'] as const
@@ -40,6 +51,7 @@ function buildFrontmatter(f: FormState): string {
     `featured: ${f.featured}`,
     `tags: [${f.tags.split(',').map(t => `"${t.trim()}"`).filter(Boolean).join(', ')}]`,
   ]
+  if (f.minicategory) lines.push(`minicategory: "${f.minicategory}"`)
   if (f.language)    lines.push(`language: ${f.language}`)
   if (f.source_url)  lines.push(`source_url: "${f.source_url}"`)
   if (f.video_url)   lines.push(`video_url: "${f.video_url}"`)
@@ -56,23 +68,24 @@ function buildContent(f: FormState): string {
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface FormState {
-  title:       string
-  slug:        string
-  type:        typeof TYPES[number]
-  competition: typeof COMPETITIONS[number]
-  subcategory: typeof SUBCATEGORIES[number]
-  description: string
-  tags:        string
-  featured:    boolean
-  language:    string
-  source_url:  string
-  video_url:   string
-  body:        string
+  title:        string
+  slug:         string
+  type:         typeof TYPES[number]
+  competition:  typeof COMPETITIONS[number]
+  subcategory:  typeof SUBCATEGORIES[number]
+  minicategory: string
+  description:  string
+  tags:         string
+  featured:     boolean
+  language:     string
+  source_url:   string
+  video_url:    string
+  body:         string
 }
 
 const EMPTY: FormState = {
   title: '', slug: '', type: 'guide', competition: 'both',
-  subcategory: 'miscellaneous',
+  subcategory: 'miscellaneous', minicategory: '',
   description: '', tags: '', featured: false,
   language: '', source_url: '', video_url: '', body: '',
 }
@@ -316,8 +329,19 @@ export default function SubmitForm() {
             </div>
             <div>
               <Label>Subcategory</Label>
-              <Select value={form.subcategory} onChange={v => set('subcategory', v)} options={SUBCATEGORIES} />
+              <Select value={form.subcategory} onChange={v => { set('subcategory', v); set('minicategory', '') }} options={SUBCATEGORIES} />
             </div>
+          </div>
+
+          <div>
+            <Label>Mini-category <span className="font-normal text-gray-400">(optional)</span></Label>
+            <select value={form.minicategory} onChange={e => set('minicategory', e.target.value)}
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              <option value="">— none —</option>
+              {(MINICATEGORIES[form.subcategory] ?? []).map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -9,7 +9,7 @@ import ResourceCard from './ResourceCard'
 const FILTER_GROUPS = [
   { key: 'competition', label: 'Competition', values: ['frc', 'ftc', 'both'] },
   { key: 'type',        label: 'Type',        values: ['guide', 'code', 'video', 'doc', 'whitepaper', 'chief-delphi', 'link'] },
-  { key: 'topic',       label: 'Subcategory', values: ['design', 'mechanical', 'electrical', 'software', 'business', 'media', 'miscellaneous'] },
+  { key: 'topic',       label: 'Subcategory', values: ['design', 'mechanical', 'electrical', 'software', 'business', 'media', 'scouting', 'miscellaneous'] },
   { key: 'language',    label: 'Language',    values: ['java', 'python', 'c++', 'kotlin', 'blocks'] },
 ] as const
 
