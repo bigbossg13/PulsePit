@@ -7,7 +7,7 @@ import matter from 'gray-matter'
 export type ResourceType  = 'guide' | 'code' | 'video' | 'doc' | 'whitepaper' | 'chief-delphi' | 'link'
 export type Competition   = 'frc' | 'ftc' | 'both'
 export type Difficulty    = 'beginner' | 'intermediate' | 'advanced'
-export type Subcategory   = 'design' | 'mechanical' | 'electrical' | 'software' | 'business' | 'media' | 'miscellaneous'
+export type Subcategory   = 'design' | 'mechanical' | 'electrical' | 'software' | 'business' | 'media' | 'scouting' | 'miscellaneous'
 export type Language      = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
 
 // Keep Topic as an alias for Subcategory so existing content using `topics:`
@@ -21,8 +21,20 @@ export const SUBCATEGORIES: Subcategory[] = [
   'software',
   'business',
   'media',
+  'scouting',
   'miscellaneous',
 ]
+
+export const MINICATEGORIES: Record<Subcategory, string[]> = {
+  design:        ['CAD', 'Prototyping', 'Ergonomics', 'Aesthetics'],
+  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator'],
+  electrical:    ['Wiring', 'Power', 'Sensors', 'Motors', 'Pneumatics'],
+  software:      ['Autonomous', 'Teleop', 'Vision', 'Controls', 'Simulation'],
+  business:      ['Impact', 'Outreach', 'Fundraising', 'Sustainability'],
+  media:         ['Photography', 'Video', 'Social Media', 'Branding'],
+  scouting:      ['Match Scouting', 'Pit Scouting', 'Data Analysis', 'Strategy', 'Alliance Selection'],
+  miscellaneous: ['Superpit', 'How to Start a Team', 'Safety'],
+}
 
 export interface Resource {
   // Required frontmatter
@@ -39,6 +51,7 @@ export interface Resource {
   featured:     boolean
   tags:         string[]
   // Optional frontmatter
+  minicategory?: string
   language?:    Language
   source_url?:  string
   video_url?:   string
@@ -105,6 +118,7 @@ function loadAllResources(): Resource[] {
         date_updated: (d.date_updated ?? '') as string,
         featured:     Boolean(d.featured),
         tags:         (d.tags ?? []) as string[],
+        minicategory: d.minicategory as string | undefined,
         language:     d.language as Language | undefined,
         source_url:   d.source_url as string | undefined,
         video_url:    d.video_url as string | undefined,
