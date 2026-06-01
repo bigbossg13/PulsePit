@@ -141,3 +141,35 @@ export function getRelatedResources(resource: Resource, count = 5): Resource[] {
     .slice(0, count)
     .map(s => s.resource)
 }
+
+
+// ── MDX content helpers ────────────────────────────────────────────────────────
+
+/**
+ * Extracts { lang, code } from a code-type resource whose MDX body is a
+ * single fenced code block: ```java\n…\n```
+ */
+export function extractCodeBlock(content: string): { lang: string; code: string } {
+  const match = content.trim().match(/^```(\w+)?\n([\s\S]*?)```\s*$/)
+  if (!match) return { lang: 'text', code: content.trim() }
+  return { lang: match[1] ?? 'text', code: match[2] }
+}
+
+/**
+ * Converts a YouTube watch URL to its embed URL.
+ * Passes embed URLs and other values through unchanged.
+ */
+export function toEmbedUrl(url: string): string {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtube.com') && u.searchParams.has('v')) {
+      return `https://www.youtube.com/embed/${u.searchParams.get('v')}`
+    }
+    if (u.hostname === 'youtu.be') {
+      return `https://www.youtube.com/embed${u.pathname}`
+    }
+  } catch {
+    // not a valid URL — return as-is
+  }
+  return url
+}

@@ -1,0 +1,65 @@
+---
+title: "Swerve Drive Controller"
+slug: "swerve-drive-example"
+type: code
+competition: frc
+difficulty: advanced
+topics:
+  - programming
+  - drivetrain
+language: java
+description: "A complete swerve drive controller implementation using WPILib's SwerveDriveKinematics."
+source_url: "https://github.com/wpilibsuite/allwpilib"
+date_added: "2024-11-15"
+date_updated: "2025-01-20"
+featured: true
+tags:
+  - swerve
+  - wpilib
+  - kinematics
+---
+
+```java
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+
+public class SwerveDrive {
+  // Robot dimensions: 27in x 27in chassis
+  private static final double WHEEL_BASE  = 0.6731; // meters
+  private static final double TRACK_WIDTH = 0.6731;
+
+  private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+    new Translation2d( WHEEL_BASE / 2,  TRACK_WIDTH / 2),  // FL
+    new Translation2d( WHEEL_BASE / 2, -TRACK_WIDTH / 2),  // FR
+    new Translation2d(-WHEEL_BASE / 2,  TRACK_WIDTH / 2),  // RL
+    new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2)   // RR
+  );
+
+  private final SwerveModule[] m_modules;
+
+  public SwerveDrive(SwerveModule fl, SwerveModule fr, SwerveModule rl, SwerveModule rr) {
+    m_modules = new SwerveModule[]{ fl, fr, rl, rr };
+  }
+
+  /**
+   * Drive field-relative.
+   *
+   * @param xSpeed   Forward speed (m/s)
+   * @param ySpeed   Strafe speed  (m/s)
+   * @param rotation Angular speed (rad/s)
+   */
+  public void drive(double xSpeed, double ySpeed, double rotation) {
+    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(
+      ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getHeading())
+    );
+
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveModule.MAX_SPEED_MPS);
+
+    for (int i = 0; i < m_modules.length; i++) {
+      m_modules[i].setDesiredState(SwerveModuleState.optimize(states[i], m_modules[i].getAngle()));
+    }
+  }
+}
+```
