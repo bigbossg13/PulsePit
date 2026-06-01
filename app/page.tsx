@@ -66,15 +66,6 @@ function Hero() {
       />
 
       <div className="relative mx-auto max-w-4xl px-4 py-20 sm:py-28 text-center sm:px-6 lg:px-8">
-        {/* Label chip */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 mb-6">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-          </span>
-          FRC &amp; FTC Season 2024–25
-        </div>
-
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl lg:text-6xl">
           The FIRST Robotics
           <br />
