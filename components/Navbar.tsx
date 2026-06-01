@@ -7,11 +7,11 @@ import ThemeToggle from './ThemeToggle'
 
 const NAV_LINKS = [
   { href: '/',          label: 'Home' },
-  { href: '/resources', label: 'Resources' },
-  { href: '/guides',    label: 'Guides' },
-  { href: '/code',      label: 'Code' },
-  { href: '/videos',    label: 'Videos' },
-  { href: '/docs',      label: 'Docs' },
+  { href: '/resources/', label: 'Resources' },
+  { href: '/guides/',    label: 'Guides' },
+  { href: '/code/',      label: 'Code' },
+  { href: '/videos/',    label: 'Videos' },
+  { href: '/docs/',      label: 'Docs' },
 ]
 
 function NavLink({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) {

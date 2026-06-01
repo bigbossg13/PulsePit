@@ -22,13 +22,13 @@ export default function ActiveFilters({ searchParams }: { searchParams: Record<s
   const remove = (key: string) => {
     const params = new URLSearchParams(sp.toString())
     params.delete(key)
-    router.push(`/resources?${params}`, { scroll: false })
+    router.push(`/resources/?${params}`, { scroll: false })
   }
 
   const clearAll = () => {
     const params = new URLSearchParams(sp.toString())
     FILTER_KEYS.forEach(k => params.delete(k))
-    router.push(`/resources?${params}`, { scroll: false })
+    router.push(`/resources/?${params}`, { scroll: false })
   }
 
   return (

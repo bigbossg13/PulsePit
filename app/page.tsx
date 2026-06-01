@@ -194,7 +194,7 @@ function QuickLinks() {
 
   return (
     <section>
-      <SectionHeader title="Browse by type" href="/resources" linkLabel="All resources" />
+      <SectionHeader title="Browse by type" href="/resources/" linkLabel="All resources" />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {links.map(item => (
           <Link
@@ -234,7 +234,7 @@ function FeaturedResources() {
 
   return (
     <section>
-      <SectionHeader title="Featured" href="/resources?featured=true" linkLabel="Browse all" />
+      <SectionHeader title="Featured" href="/resources/?featured=true" linkLabel="Browse all" />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {featured.slice(0, 6).map(r => (
           <ResourceCard key={r.slug} resource={r} />
@@ -256,7 +256,7 @@ function RecentlyAdded() {
 
   return (
     <section>
-      <SectionHeader title="Recently added" href="/resources?sort=newest" linkLabel="View all" />
+      <SectionHeader title="Recently added" href="/resources/?sort=newest" linkLabel="View all" />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {recent.map(r => <ResourceCard key={r.slug} resource={r} />)}
       </div>
@@ -289,7 +289,7 @@ function ContributeCTA() {
           Contribute on GitHub
         </a>
         <Link
-          href="/about"
+          href="/about/"
           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 text-sm font-medium transition-colors"
         >
           Learn how it works

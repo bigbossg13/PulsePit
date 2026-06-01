@@ -25,7 +25,7 @@ export default function SearchBar({ defaultValue = '', placeholder = 'Search res
       params.delete('q')
     }
     // On /resources keep filters; elsewhere navigate to resources page
-    const dest = pathname === '/resources' ? `/resources?${params}` : `/resources?q=${encodeURIComponent(query.trim())}`
+    const dest = pathname === '/resources' ? `/resources/?${params}` : `/resources/?q=${encodeURIComponent(query.trim())}`
     router.push(dest, { scroll: false })
   }
 

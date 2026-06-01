@@ -25,14 +25,14 @@ function useFilterParams() {
     }
     // keep page at top when filters change
     params.delete('page')
-    router.push(`/resources?${params.toString()}`, { scroll: false })
+    router.push(`/resources/?${params.toString()}`, { scroll: false })
   }
 
   const clear = () => {
     const params = new URLSearchParams(searchParams.toString())
     FILTER_KEYS.forEach(k => params.delete(k))
     // preserve search query
-    router.push(`/resources?${params.toString()}`, { scroll: false })
+    router.push(`/resources/?${params.toString()}`, { scroll: false })
   }
 
   const activeCount = FILTER_KEYS.filter(k => searchParams.has(k)).length

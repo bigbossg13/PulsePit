@@ -176,10 +176,10 @@ export default function SearchModal({ records }: SearchModalProps) {
       const selected = results[cursor]
       if (selected) {
         close()
-        router.push(`/resources/${selected.item.slug}`)
+        router.push(`/resources/${selected.item.slug}/`)
       } else if (query.trim()) {
         close()
-        router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+        router.push(`/search/?q=${encodeURIComponent(query.trim())}`)
       }
     } else if (e.key === 'Escape') {
       close()
