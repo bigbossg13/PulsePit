@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: '/code/',      label: 'Code' },
   { href: '/videos/',    label: 'Videos' },
   { href: '/docs/',      label: 'Docs' },
+  { href: '/submit/',    label: 'Submit' },
 ]
 
 function NavLink({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) {
