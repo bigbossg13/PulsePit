@@ -27,7 +27,7 @@ export const SUBCATEGORIES: Subcategory[] = [
 
 export const MINICATEGORIES: Record<Subcategory, string[]> = {
   design:        ['CAD', 'Prototyping', 'Ergonomics', 'Aesthetics'],
-  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator'],
+  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator', 'Bumpers'],
   electrical:    ['Wiring', 'Power', 'Sensors', 'Motors', 'Pneumatics'],
   software:      ['Autonomous', 'Teleop', 'Vision', 'Controls', 'Simulation'],
   business:      ['Impact', 'Outreach', 'Fundraising', 'Sustainability'],
