@@ -4,31 +4,46 @@ import matter from 'gray-matter'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type ResourceType = 'guide' | 'code' | 'video' | 'doc'
-export type Competition  = 'frc' | 'ftc' | 'both'
-export type Difficulty   = 'beginner' | 'intermediate' | 'advanced'
-export type Topic        = 'programming' | 'mechanical' | 'electrical' | 'strategy' | 'scouting' | 'business'
-export type Language     = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
+export type ResourceType  = 'guide' | 'code' | 'video' | 'doc'
+export type Competition   = 'frc' | 'ftc' | 'both'
+export type Difficulty    = 'beginner' | 'intermediate' | 'advanced'
+export type Subcategory   = 'design' | 'mechanical' | 'electrical' | 'software' | 'business' | 'media' | 'miscellaneous'
+export type Language      = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
+
+// Keep Topic as an alias for Subcategory so existing content using `topics:`
+// in frontmatter continues to work without migration.
+export type Topic = Subcategory
+
+export const SUBCATEGORIES: Subcategory[] = [
+  'design',
+  'mechanical',
+  'electrical',
+  'software',
+  'business',
+  'media',
+  'miscellaneous',
+]
 
 export interface Resource {
   // Required frontmatter
-  title:       string
-  slug:        string
-  type:        ResourceType
-  competition: Competition
-  difficulty:  Difficulty
-  topics:      Topic[]
-  description: string
-  date_added:  string
+  title:        string
+  slug:         string
+  type:         ResourceType
+  competition:  Competition
+  difficulty:   Difficulty
+  subcategory:  Subcategory    // primary subcategory (single value)
+  topics:       Subcategory[]  // additional subcategories (multi-select)
+  description:  string
+  date_added:   string
   date_updated: string
-  featured:    boolean
-  tags:        string[]
+  featured:     boolean
+  tags:         string[]
   // Optional frontmatter
-  language?:   Language
-  source_url?: string
-  video_url?:  string
+  language?:    Language
+  source_url?:  string
+  video_url?:   string
   // Populated at load time — raw MDX body after the frontmatter block
-  content?:    string
+  content?:     string
 }
 
 // ── Directory mapping ──────────────────────────────────────────────────────────
@@ -70,13 +85,18 @@ function loadAllResources(): Resource[] {
       }
 
       const d = data as Record<string, unknown>
+      // `subcategory` is the primary category; `topics` is the legacy/multi field.
+      // If only `topics` is set, use the first entry as subcategory.
+      const topicsRaw = (d.topics ?? []) as Subcategory[]
+      const subcategory = (d.subcategory ?? topicsRaw[0] ?? 'miscellaneous') as Subcategory
       resources.push({
         title:        d.title as string,
         slug:         d.slug as string,
         type,
         competition:  (d.competition ?? 'both') as Competition,
         difficulty:   (d.difficulty ?? 'beginner') as Difficulty,
-        topics:       (d.topics ?? []) as Topic[],
+        subcategory,
+        topics:       topicsRaw,
         description:  (d.description ?? '') as string,
         date_added:   (d.date_added ?? '') as string,
         date_updated: (d.date_updated ?? '') as string,
