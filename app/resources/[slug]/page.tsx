@@ -95,18 +95,27 @@ function ResourceHeader({ resource, readTime }: { resource: Resource; readTime?:
         </div>
       )}
 
-      {/* External link */}
-      {resource.source_url && (
-        <a
-          href={resource.source_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+      {/* External link + edit */}
+      <div className="mt-4 flex flex-wrap items-center gap-4">
+        {resource.source_url && (
+          <a
+            href={resource.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            View source
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        )}
+        <Link
+          href={`/edit/${resource.slug}/`}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
-          View source
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
-      )}
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </Link>
+      </div>
     </header>
   )
 }
@@ -233,7 +242,45 @@ async function DocRenderer({ resource }: { resource: Resource }) {
   )
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────────
+function LinkRenderer({ resource }: { resource: Resource }) {
+  const url = resource.source_url ?? resource.video_url
+  const label =
+    resource.type === 'chief-delphi' ? 'Open on Chief Delphi' :
+    resource.type === 'whitepaper'   ? 'View whitepaper' :
+                                       'Visit link'
+  return (
+    <div>
+      <ResourceHeader resource={resource} />
+      {url ? (
+        <div className="my-8 flex flex-col items-center gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-10 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+            className="text-gray-400" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          <p className="text-sm text-gray-500 dark:text-gray-400 break-all max-w-md">{url}</p>
+          <a href={url} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium transition-colors">
+            {label}
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+        </div>
+      ) : (
+        <div className="my-8 rounded-xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-500 dark:text-gray-400">
+          No URL provided for this resource.
+        </div>
+      )}
+      <ShareRow />
+    </div>
+  )
+}
+
+
 
 export default function ResourcePage({ params }: { params: { slug: string } }) {
   const resource = getResourceBySlug(params.slug)
@@ -243,10 +290,13 @@ export default function ResourcePage({ params }: { params: { slug: string } }) {
 
   let body: React.ReactNode
   switch (resource.type) {
-    case 'guide': body = <GuideRenderer resource={resource} />; break
-    case 'code':  body = <CodeRenderer  resource={resource} />; break
-    case 'video': body = <VideoRenderer resource={resource} />; break
-    case 'doc':   body = <DocRenderer   resource={resource} />; break
+    case 'guide':         body = <GuideRenderer resource={resource} />; break
+    case 'code':          body = <CodeRenderer  resource={resource} />; break
+    case 'video':         body = <VideoRenderer resource={resource} />; break
+    case 'doc':           body = <DocRenderer   resource={resource} />; break
+    case 'whitepaper':
+    case 'chief-delphi':
+    case 'link':          body = <LinkRenderer  resource={resource} />; break
   }
 
   return (

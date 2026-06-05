@@ -174,9 +174,12 @@ function Select<T extends string>({ value, onChange, options }: {
 
 type Status = { kind: 'idle' } | { kind: 'loading' } | { kind: 'success'; url: string } | { kind: 'error'; msg: string }
 
-export default function SubmitForm() {
+export type SubmitFormInitialValues = Partial<FormState> & { slug: string }
+
+export default function SubmitForm({ initialValues }: { initialValues?: SubmitFormInitialValues }) {
+  const isEdit = Boolean(initialValues)
   const [token,  setToken]  = useState('')
-  const [form,   setForm]   = useState<FormState>(EMPTY)
+  const [form,   setForm]   = useState<FormState>(initialValues ? { ...EMPTY, ...initialValues } : EMPTY)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
   // Load token from localStorage on mount
@@ -249,7 +252,7 @@ export default function SubmitForm() {
     if (res.ok) {
       const data = await res.json() as { content?: { html_url?: string } }
       setStatus({ kind: 'success', url: data.content?.html_url ?? `https://github.com/${REPO_OWNER}/${REPO_NAME}` })
-      setForm(EMPTY)
+      if (!isEdit) setForm(EMPTY)
     } else {
       const err = await res.json() as { message?: string }
       setStatus({ kind: 'error', msg: err.message ?? `GitHub API error ${res.status}` })
@@ -270,14 +273,16 @@ export default function SubmitForm() {
       {/* Success banner */}
       {status.kind === 'success' && (
         <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 px-4 py-4 text-sm text-green-800 dark:text-green-300 space-y-1">
-          <p className="font-semibold">Resource added! 🎉</p>
+          <p className="font-semibold">{isEdit ? 'Resource updated!' : 'Resource added!'} 🎉</p>
           <p>
             GitHub Actions will rebuild and deploy the site in ~1–2 minutes.{' '}
             <a href={status.url} target="_blank" rel="noopener noreferrer" className="underline">View file on GitHub →</a>
           </p>
-          <button onClick={() => setStatus({ kind: 'idle' })} className="text-xs text-green-600 dark:text-green-400 hover:underline mt-1">
-            Add another resource
-          </button>
+          {!isEdit && (
+            <button onClick={() => setStatus({ kind: 'idle' })} className="text-xs text-green-600 dark:text-green-400 hover:underline mt-1">
+              Add another resource
+            </button>
+          )}
         </div>
       )}
 
@@ -301,8 +306,14 @@ export default function SubmitForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Slug *</Label>
-              <Input value={form.slug} onChange={v => set('slug', slugify(v))} placeholder="auto-generated from title" required />
-              <p className="mt-1 text-xs text-gray-400">URL-safe, lowercase, hyphens only</p>
+              {isEdit ? (
+                <div className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 font-mono">
+                  {form.slug}
+                </div>
+              ) : (
+                <Input value={form.slug} onChange={v => set('slug', slugify(v))} placeholder="auto-generated from title" required />
+              )}
+              <p className="mt-1 text-xs text-gray-400">{isEdit ? 'Slug cannot be changed when editing' : 'URL-safe, lowercase, hyphens only'}</p>
             </div>
             <div>
               <Label>Type *</Label>
@@ -421,7 +432,7 @@ export default function SubmitForm() {
         <div className="flex items-center gap-4 pt-2">
           <button type="submit" disabled={status.kind === 'loading' || !token}
             className="rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 text-sm font-medium transition-colors">
-            {status.kind === 'loading' ? 'Publishing…' : 'Publish to GitHub'}
+            {status.kind === 'loading' ? (isEdit ? 'Saving…' : 'Publishing…') : (isEdit ? 'Save changes to GitHub' : 'Publish to GitHub')}
           </button>
           {!token && (
             <p className="text-xs text-gray-400">Add your GitHub token above to publish.</p>
