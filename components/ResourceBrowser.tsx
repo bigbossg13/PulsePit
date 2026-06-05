@@ -152,7 +152,9 @@ function Sidebar({
           Clear {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''}
         </button>
       )}
-      {FILTER_GROUPS.map(({ key, label, values }) => (
+      {FILTER_GROUPS.map(({ key, label, values }) => {
+        if (key === 'language' && sp.get('topic') && sp.get('topic') !== 'software') return null
+        return (
         <div key={key}>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</h3>
           <div className="flex flex-wrap gap-1.5">
@@ -170,7 +172,8 @@ function Sidebar({
             })}
           </div>
         </div>
-      ))}
+        )
+      })}
 
       {/* Mini-category — only shown when a subcategory is selected */}
       {sp.get('topic') && (MINICATEGORIES[sp.get('topic') as keyof typeof MINICATEGORIES] ?? []).length > 0 && (
