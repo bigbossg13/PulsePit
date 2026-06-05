@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useTransition } from 'react'
 import type { Resource } from '@/lib/resources'
+import { MINICATEGORIES } from '@/lib/constants'
 import ResourceCard from './ResourceCard'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -13,7 +14,7 @@ const FILTER_GROUPS = [
   { key: 'language',    label: 'Language',    values: ['java', 'python', 'c++', 'kotlin', 'blocks'] },
 ] as const
 
-const FILTER_KEYS = FILTER_GROUPS.map(g => g.key)
+const FILTER_KEYS = [...FILTER_GROUPS.map(g => g.key), 'minicategory'] as const
 type SortOption  = 'newest' | 'oldest' | 'alpha'
 
 // ── URL param helpers ──────────────────────────────────────────────────────────
@@ -29,6 +30,8 @@ function useFilterParams() {
   const setFilter = (key: string, value: string) => {
     const p = new URLSearchParams(sp.toString())
     if (p.get(key) === value) { p.delete(key) } else { p.set(key, value) }
+    // Changing subcategory clears the dependent minicategory filter
+    if (key === 'topic') p.delete('minicategory')
     p.delete('page')
     push(p)
   }
@@ -64,7 +67,7 @@ function useFilterParams() {
     setSort,
     setQuery,
     removeParam,
-    activeFilterCount: FILTER_KEYS.filter(k => sp.has(k)).length,
+    activeFilterCount: [...FILTER_KEYS, 'minicategory' as const].filter(k => sp.has(k)).length,
     sort: (sp.get('sort') ?? 'newest') as SortOption,
     query: sp.get('q') ?? '',
   }
@@ -88,9 +91,11 @@ function applyFilters(resources: Resource[], sp: URLSearchParams): Resource[] {
     if (!val) continue
     if (key === 'competition') result = result.filter(r => r.competition === val)
     if (key === 'type')        result = result.filter(r => r.type === val)
-if (key === 'topic')       result = result.filter(r => r.subcategory === val || r.topics.includes(val as Resource['topics'][number]))
+    if (key === 'topic')       result = result.filter(r => r.subcategory === val || r.topics.includes(val as Resource['topics'][number]))
     if (key === 'language')    result = result.filter(r => r.language === val)
   }
+  const minicategory = sp.get('minicategory')
+  if (minicategory) result = result.filter(r => r.minicategory === minicategory)
 
   const sort = sp.get('sort') as SortOption | null
   if (sort === 'oldest') result.sort((a, b) => new Date(a.date_added).getTime() - new Date(b.date_added).getTime())
@@ -166,6 +171,27 @@ function Sidebar({
           </div>
         </div>
       ))}
+
+      {/* Mini-category — only shown when a subcategory is selected */}
+      {sp.get('topic') && (MINICATEGORIES[sp.get('topic') as keyof typeof MINICATEGORIES] ?? []).length > 0 && (
+        <div>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Mini-category</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {(MINICATEGORIES[sp.get('topic') as keyof typeof MINICATEGORIES] ?? []).map(value => {
+              const active = sp.get('minicategory') === value
+              return (
+                <button key={value} onClick={() => setFilter('minicategory', value)}
+                  className={`rounded-full px-3 py-1 text-xs transition-colors ${active
+                    ? 'bg-blue-600 text-white font-medium'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}>
+                  {value}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -200,7 +226,7 @@ function ActiveChips({ sp, removeParam, clearFilters }: {
   removeParam: (k: string) => void
   clearFilters: () => void
 }) {
-  const LABEL: Record<string, string> = { competition:'Competition', type:'Type', topic:'Topic', language:'Language', q:'Search' }
+  const LABEL: Record<string, string> = { competition:'Competition', type:'Type', topic:'Subcategory', minicategory:'Mini-cat', language:'Language', q:'Search' }
   const active = [...FILTER_KEYS, 'q' as const].filter(k => sp.has(k))
   if (!active.length) return null
 
