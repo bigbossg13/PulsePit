@@ -1,39 +1,25 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { type Subcategory, SUBCATEGORIES, MINICATEGORIES } from './constants'
+
+export { SUBCATEGORIES, MINICATEGORIES }
+export type { Subcategory }
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export type ResourceType  = 'guide' | 'code' | 'video' | 'doc' | 'whitepaper' | 'chief-delphi' | 'link'
 export type Competition   = 'frc' | 'ftc' | 'both'
 export type Difficulty    = 'beginner' | 'intermediate' | 'advanced'
-export type Subcategory   = 'design' | 'mechanical' | 'electrical' | 'software' | 'business' | 'media' | 'scouting' | 'miscellaneous'
 export type Language      = 'java' | 'python' | 'c++' | 'kotlin' | 'blocks'
 
 // Keep Topic as an alias for Subcategory so existing content using `topics:`
 // in frontmatter continues to work without migration.
 export type Topic = Subcategory
 
-export const SUBCATEGORIES: Subcategory[] = [
-  'design',
-  'mechanical',
-  'electrical',
-  'software',
-  'business',
-  'media',
-  'scouting',
-  'miscellaneous',
-]
-
-export const MINICATEGORIES: Record<Subcategory, string[]> = {
-  design:        ['CAD', 'Prototyping', 'Ergonomics', 'Aesthetics'],
-  mechanical:    ['Drivetrain', 'Intake', 'Shooter', 'Climber', 'Arm', 'Elevator', 'Bumpers'],
-  electrical:    ['Wiring', 'Power', 'Sensors', 'Motors', 'Pneumatics'],
-  software:      ['Autonomous', 'Teleop', 'Vision', 'Controls', 'Simulation'],
-  business:      ['Impact', 'Outreach', 'Fundraising', 'Sustainability'],
-  media:         ['Photography', 'Video', 'Social Media', 'Branding'],
-  scouting:      ['Match Scouting', 'Pit Scouting', 'Data Analysis', 'Strategy', 'Alliance Selection'],
-  miscellaneous: ['Superpit', 'How to Start a Team', 'Safety'],
+export interface ResourceLink {
+  label: string
+  url:   string
 }
 
 export interface Resource {
@@ -55,6 +41,7 @@ export interface Resource {
   language?:    Language
   source_url?:  string
   video_url?:   string
+  links?:       ResourceLink[]
   // Populated at load time — raw MDX body after the frontmatter block
   content?:     string
 }
@@ -121,6 +108,7 @@ function loadAllResources(): Resource[] {
         minicategory: d.minicategory as string | undefined,
         language:     d.language as Language | undefined,
         source_url:   d.source_url as string | undefined,
+        links:        (d.links ?? []) as ResourceLink[],
         video_url:    d.video_url as string | undefined,
         content,
       })
