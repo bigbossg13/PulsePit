@@ -55,6 +55,13 @@ function buildFrontmatter(f: FormState): string {
   if (f.language)    lines.push(`language: ${f.language}`)
   if (f.source_url)  lines.push(`source_url: "${f.source_url}"`)
   if (f.video_url)   lines.push(`video_url: "${f.video_url}"`)
+  if (f.links.length) {
+    lines.push('links:')
+    f.links.forEach(l => {
+      lines.push(`  - label: "${l.label.replace(/"/g, '\\"')}"`)
+      lines.push(`    url: "${l.url.replace(/"/g, '\\"')}"`)
+    })
+  }
   lines.push('---')
   return lines.join('\n')
 }
@@ -66,6 +73,8 @@ function buildContent(f: FormState): string {
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────────
+
+interface LinkEntry { label: string; url: string }
 
 interface FormState {
   title:        string
@@ -80,6 +89,7 @@ interface FormState {
   language:     string
   source_url:   string
   video_url:    string
+  links:        LinkEntry[]
   body:         string
 }
 
@@ -87,7 +97,7 @@ const EMPTY: FormState = {
   title: '', slug: '', type: 'guide', competition: 'both',
   subcategory: 'miscellaneous', minicategory: '',
   description: '', tags: '', featured: false,
-  language: '', source_url: '', video_url: '', body: '',
+  language: '', source_url: '', video_url: '', links: [], body: '',
 }
 
 // ── Token panel ────────────────────────────────────────────────────────────────
@@ -368,6 +378,55 @@ export default function SubmitForm({ initialValues }: { initialValues?: SubmitFo
               </label>
             </div>
           </div>
+        </fieldset>
+
+        {/* Additional links */}
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Additional links <span className="font-normal normal-case">(optional)</span></legend>
+          {form.links.map((link, i) => (
+            <div key={i} className="flex gap-2 items-start">
+              <div className="flex-1 grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={link.label}
+                  onChange={e => {
+                    const next = [...form.links]
+                    next[i] = { ...next[i], label: e.target.value }
+                    set('links', next)
+                  }}
+                  placeholder="Label (e.g. Chief Delphi post)"
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                />
+                <input
+                  type="url"
+                  value={link.url}
+                  onChange={e => {
+                    const next = [...form.links]
+                    next[i] = { ...next[i], url: e.target.value }
+                    set('links', next)
+                  }}
+                  placeholder="https://..."
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => set('links', form.links.filter((_, j) => j !== i))}
+                className="mt-2 text-gray-400 hover:text-red-500 transition-colors"
+                aria-label="Remove link"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => set('links', [...form.links, { label: '', url: '' }])}
+            className="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add link
+          </button>
         </fieldset>
 
         {/* Type-specific fields */}

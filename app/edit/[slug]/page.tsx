@@ -33,6 +33,7 @@ export default function EditPage({ params }: { params: { slug: string } }) {
     language:     resource.language ?? '',
     source_url:   resource.source_url ?? '',
     video_url:    resource.video_url ?? '',
+    links:        resource.links ?? [],
     body:         resource.content ?? '',
   }
 

@@ -36,6 +36,11 @@ export const MINICATEGORIES: Record<Subcategory, string[]> = {
   miscellaneous: ['Superpit', 'How to Start a Team', 'Safety'],
 }
 
+export interface ResourceLink {
+  label: string
+  url:   string
+}
+
 export interface Resource {
   // Required frontmatter
   title:        string
@@ -55,6 +60,7 @@ export interface Resource {
   language?:    Language
   source_url?:  string
   video_url?:   string
+  links?:       ResourceLink[]
   // Populated at load time — raw MDX body after the frontmatter block
   content?:     string
 }
@@ -121,6 +127,7 @@ function loadAllResources(): Resource[] {
         minicategory: d.minicategory as string | undefined,
         language:     d.language as Language | undefined,
         source_url:   d.source_url as string | undefined,
+        links:        (d.links ?? []) as ResourceLink[],
         video_url:    d.video_url as string | undefined,
         content,
       })
