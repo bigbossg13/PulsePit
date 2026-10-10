@@ -1,9 +1,0 @@
-# Cloudflare Worker config for the PulsePit FTC Events proxy.
-# Deploy from this folder: npx wrangler deploy
-name = "pulsepit-ftc-events-proxy"
-main = "worker.mjs"
-compatibility_date = "2024-09-23"
-
-[vars]
-# Sites allowed to call the proxy (comma separated). Use "*" to allow any site.
-ALLOWED_ORIGINS = "https://bigbossg13.github.io,http://localhost:3000"
