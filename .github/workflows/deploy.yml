@@ -40,10 +40,16 @@ jobs:
       - name: Test
         run: npm test
 
+      # Reads the site's URL path from the Pages settings ("/PulsePit" for
+      # bigbossg13.github.io/PulsePit, "" with a custom domain), so a renamed
+      # repo or a custom domain needs no code change.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Build
         env:
-          # Repo name used as basePath — update if repo is renamed
-          NEXT_PUBLIC_BASE_PATH: /PulsePit
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
           # Optional FTC Events API proxy for the pit display (see proxy/README.md).
           # Set it under Settings → Secrets and variables → Actions → Variables.
           NEXT_PUBLIC_FTC_EVENTS_PROXY: ${{ vars.FTC_EVENTS_PROXY_URL }}

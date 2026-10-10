@@ -68,6 +68,31 @@ device:
 
 Checked with axe-core (WCAG 2.2 AA) in every theme.
 
+## Hosting on GitHub Pages
+
+The whole site (hub and pit display) is a static export, so GitHub Pages
+hosts it with no server. `.github/workflows/deploy.yml` type-checks, tests,
+builds and publishes it on every push to `main`; pull requests only build and
+test. Pages is already set to deploy from GitHub Actions for this repo, so the
+display is live after a merge at:
+
+- <https://bigbossg13.github.io/PulsePit/display/> (pick your team and event)
+- <https://bigbossg13.github.io/PulsePit/display/view/?demo=1> (demo)
+
+To host your own copy (a fork or a renamed repo):
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. Push to `main`, or run **Deploy to GitHub Pages** from the Actions tab.
+
+The build reads the site's path from the Pages settings, so a renamed repo or
+a custom domain works without code changes.
+
+On Pages the display gets its data from FTCScout. The official FTC Events API
+needs a server to hold its key, which Pages can't run: deploy the proxy to
+Cloudflare Workers (free, see [`proxy/README.md`](proxy/README.md)) and set the
+repository variable `FTC_EVENTS_PROXY_URL` to switch it on. With a custom
+domain, also add it to `ALLOWED_ORIGINS` in `proxy/wrangler.toml`.
+
 ## Development
 
 ```bash
@@ -85,9 +110,8 @@ FTC_EVENTS_USERNAME=... FTC_EVENTS_TOKEN=... npm run proxy   # http://localhost:
 echo NEXT_PUBLIC_FTC_EVENTS_PROXY=http://localhost:8787 > .env.local
 ```
 
-Deploying the proxy (Cloudflare Workers, free tier) is covered in
-[`proxy/README.md`](proxy/README.md). For the GitHub Pages build, set the
-repository variable `FTC_EVENTS_PROXY_URL`.
+`npm run build:gh` builds the static site exactly as Pages serves it (under
+`/PulsePit`) into `out/`.
 
 ### Layout
 
