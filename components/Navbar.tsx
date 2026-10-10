@@ -13,6 +13,7 @@ const SUBCATEGORIES = [
 const SIMPLE_LINKS = [
   { href: '/',         label: 'Home' },
   { href: '/submit/',  label: 'Submit' },
+  { href: '/display/', label: 'Pit Display' },
 ]
 
 function NavLink({ href, label, onClick }: { href: string; label: string; onClick?: () => void }) {
@@ -199,6 +200,7 @@ export default function Navbar() {
               <NavLink href="/" label="Home" />
               <BrowseDropdown />
               <NavLink href="/submit/" label="Submit" />
+              <NavLink href="/display/" label="Pit Display" />
             </div>
 
             {/* Right-side controls */}
