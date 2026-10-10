@@ -8,7 +8,9 @@
     "build:gh": "NEXT_PUBLIC_BASE_PATH=/PulsePit next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test lib/pit/*.test.ts proxy/*.test.mjs",
+    "proxy": "node proxy/server.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -32,6 +34,7 @@
     "eslint-config-next": "14.2.35",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
